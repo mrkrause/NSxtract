@@ -1,0 +1,17 @@
+CC=i686-pc-mingw32-g++
+CFLAGS= -O3 -Wall -Werror -std=gnu++11
+LIBS=-logg -lFLAC -logg -lFLAC++ -logg -lFLAC -logg -lboost_program_options-mt -lboost_filesystem-mt -lboost_system-mt
+TARGET = rippleToFlac
+DEPS = NSxFile.h Config.h
+OBJ = Config.o NSxFile.o NSxChannel.o NSxHeader.o rippleToFlac.o
+
+
+%.o: %.cpp $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS) -DWINDOWS
+
+rippleToFlac.exe: $(OBJ)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS) -static
+
+.PHONY: clean
+clean:
+	rm -f *.o *~ core

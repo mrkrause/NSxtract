@@ -1,0 +1,72 @@
+//
+//  NsxHeader.cpp
+//  dumpNEV
+//
+//  Created by Matthew Krause on 2/22/15.
+//  Copyright (c) 2015 Matthew Krause. All rights reserved.
+//
+
+#include <iostream>
+
+#include "NsxHeader.h"
+
+NSxFile::NSxFile(std::string filename) {
+    
+    file.open(filename, std::ios_base::binary | std::ios_base::binary);
+    file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    if(!file) {
+        throw("bad file");
+    }
+    
+    header = NSxHeader(file);
+    std::cout << header << std::endl;
+}
+
+NSxHeader::NSxHeader(std::ifstream& file) {
+    
+    // All NSx files start with the magic word "NEURALCD".
+    // Check to make sure this one does too
+    std::streampos start= file.tellg();
+    
+    std:std::string typeString = "NEURALCD";
+    for(auto i = 0; i<typeString.size(); i++) {
+        char tmp;
+        file >> tmp;
+        if(tmp != typeString[i]) {
+            file.seekg(start);
+            throw("Wrong type of file");
+        }
+    }
+    
+    // See page 8 of the Trellis NEV spec for sizes
+    file.read(reinterpret_cast<char*>(&majorVersion), sizeof(uint8_t));
+    file.read(reinterpret_cast<char*>(&minorVersion), sizeof(uint8_t));
+    file.read(reinterpret_cast<char*>(&offset), sizeof(uint32_t));
+    file.read(reinterpret_cast<char*>(&label), sizeof(char)*16);
+    file.read(reinterpret_cast<char*>(&comment), sizeof(char)*256);
+    file.read(reinterpret_cast<char*>(&samplingPeriod), sizeof(uint32_t));
+    file.read(reinterpret_cast<char*>(&timeResolution), sizeof(uint32_t));
+    file.read(reinterpret_cast<char*>(&time), sizeof(SystemTime));
+    file.read(reinterpret_cast<char*>(&channelCount), sizeof(uint32_t));
+
+    /* We explicitly DO NOT close the file here, because the rest of the class
+    is going to read from it too */
+}
+
+std::ostream& operator<<(std::ostream& out, const NSxHeader& h) // output
+{
+    out << "NSx Header (file format " << int(h.majorVersion) << '.' << int(h.minorVersion) <<  ')' << std::endl;
+    out << "File begins at " << h.time << std::endl;
+    out << "Contents: " << h.label << ", beginning at offset " << int(h.offset) << std::endl;
+    out << h.channelCount << " channels, sampled at " << 1/(h.samplingPeriod * 1/30000.0) << "Hz. Time resolution " << h.timeResolution << " Hz." << std::endl;
+    
+    out << "Comments: " << h.comment << std::endl;
+    
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, const SystemTime& t) {
+    out << t.year << '-' << t.month << '-' << t.day << ' ' << t.hour << ':' << t.minute << ':' << t.second << '.' << t.millisecond;
+    return out;
+}
+
