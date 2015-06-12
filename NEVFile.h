@@ -13,5 +13,23 @@ class NEVFile {
 
 
  protected:
+  std::ifstream file;
 
+  unsigned char majorVersion;
+  unsigned char minorVersion;
+
+  std::uint16_t flags;
+
+  std::uint32_t offset;
+  std::uint32_t packetSize;
+
+  std::uint32_t tsResolution;
+  std::uint32_t sampResolution;
+
+  SystemTime time;
+
+  char label[16];
+  char comment[256];
+
+  std::uint32_t nHeaders;
 }
