@@ -15,7 +15,7 @@
 
 #include <thread>
 
-typedef std::vector<std::unique_ptr<FLAC::Encoder::File>> EncoderBank;
+typedef std::vector<std::unique_ptr<FLAC::Encoder::File> > EncoderBank;
 
 struct ThreadData {
   /* This structure is for farming out FLAC encoding to separate threads. 
@@ -139,7 +139,7 @@ void process_multiThreaded(NSxFile &f, const Config &config, EncoderBank &encode
   while(f.hasMoreData()) {
     td.datalen = f.readData(config.readSize(), td.bulkBuffer);
 
-    std::vector<std::unique_ptr<std::thread>> threads;
+    std::vector<std::unique_ptr<std::thread> > threads;
     for(auto i = 0U; i<config.nThreads(); i++) {
       td.start = stride * i;
       td.stop = std::min(stride*(i+1), f.getChannelCount()) ;     
