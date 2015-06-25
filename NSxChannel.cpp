@@ -39,8 +39,11 @@ NSxChannel::NSxChannel(std::ifstream &file) {
     }
 }
 
+double NSxChannel::getVoltsPerAD() const {
+    return (double(maxAnalog) -  double(minAnalog)) / (double(maxDigital) - double(minDigital));
+}
 
-std::string NSxChannel::rippleSpec() const {
+std::string NSxChannel::getRippleID() const {
     std::ostringstream s;
     
     char port = (frontEndID/4) + 'A';
@@ -52,6 +55,6 @@ std::string NSxChannel::rippleSpec() const {
 
 
 std::ostream& operator<<(std::ostream& out, const NSxChannel& c) {
-    out  << "Electrode #" << c.electrodeID << " (" << c.electrodeLabel << "): " << c.rippleSpec() << std::endl;
+    out  << "Electrode #" << c.electrodeID << " (" << c.electrodeLabel << "): " << c.getRippleID() << std::endl;
     return out;
 }

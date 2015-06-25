@@ -60,7 +60,15 @@ std::ostream& operator<<(std::ostream& out, const SystemTime& t) {
     return out;
 }
 
+std::string SystemTime::str() {
+    std::ostringstream s;
+    
+    s << this;
+    return(s.str());
+    
+}
+
 double NSxHeader::getSamplingFreq() const {
-    return timeResolution/double(samplingPeriod);
+    return double(timeResolution)/double(samplingPeriod);
 }
 

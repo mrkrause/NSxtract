@@ -15,6 +15,7 @@ See also: NSxChannel.h, which represents individual channels.
 #include <fstream>
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 #include <string>
 #include <stdexcept>
 #include <cstdint>
@@ -33,7 +34,8 @@ struct SystemTime {
     std::uint16_t minute;
     std::uint16_t second;
     std::uint16_t millisecond;
-    
+
+    std::string str();
     friend std::ostream& operator<<(std::ostream& out, const SystemTime& t);
 };
 #pragma pack(pop)
@@ -53,6 +55,15 @@ public:
     std::uint32_t getChannelCount() const { return channelCount;}
     std::uint32_t getOffset() const { return offset;}
 
+    std::uint8_t getMajorVersion() const {  return majorVersion; }
+    std::uint8_t getMinorVersion() const {  return minorVersion; }
+    
+    std::string getLabel() const { return std::string(label); }
+    std::string getComment() const { return std::string(comment); }
+    
+    SystemTime getStartTime() const { return time; }
+    
+    
 private:
     // Version numbers
     std::uint8_t majorVersion;
