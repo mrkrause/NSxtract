@@ -23,8 +23,8 @@ NSxChannel::NSxChannel(std::ifstream &file) {
         file.read(reinterpret_cast<char *>(&electrodeLabel), sizeof(electrodeLabel));
         file.read(reinterpret_cast<char *>(&frontEndID), sizeof(frontEndID));
         file.read(reinterpret_cast<char *>(&pin), sizeof(pin));
-        file.read(reinterpret_cast<char *>(&maxDigital), sizeof(maxDigital));
         file.read(reinterpret_cast<char *>(&minDigital), sizeof(minDigital));
+        file.read(reinterpret_cast<char *>(&maxDigital), sizeof(maxDigital));
         file.read(reinterpret_cast<char *>(&minAnalog), sizeof(minAnalog));
         file.read(reinterpret_cast<char *>(&maxAnalog), sizeof(maxAnalog));
         file.read(reinterpret_cast<char *>(&unitLabel), sizeof(unitLabel));
