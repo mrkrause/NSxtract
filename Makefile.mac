@@ -1,0 +1,21 @@
+MATLAB_ROOT=/Applications/MATLAB_R2014b.app
+CC=$(MATLAB_ROOT)/bin/mex
+CFLAGS=-client engine -g  -I/opt/local/include -L/opt/local/lib/ -DMAT_FILE_SUPPORT
+LIBS=-lFLAC -lFLAC++ -lboost_program_options-mt -lboost_filesystem-mt -lboost_system-mt
+TARGET = rippleToFlac
+DEPS = NSxFile.h Config.h
+OBJ = typeHelper.o MatFile.o Config.o NSxFile.o NSxChannel.o NSxHeader.o nsx2mat.o rippleToFlac.o
+
+
+%.o: %.cpp $(DEPS)
+	$(CC) -c $@ $< $(CFLAGS)
+
+rippleToFlac: $(OBJ)
+	$(CC) -output $@ $^ $(CFLAGS) $(LIBS)
+	install_name_tool -change @rpath/libeng.dylib $(MATLAB_ROOT)/bin/maci64/libeng.dylib $@
+	install_name_tool -change @rpath/libmat.dylib $(MATLAB_ROOT)/bin/maci64/libmat.dylib $@
+	install_name_tool -change @rpath/libmex.dylib $(MATLAB_ROOT)/bin/maci64/libmex.dylib $@
+	install_name_tool -change @rpath/libmx.dylib $(MATLAB_ROOT)/bin/maci64/libmx.dylib $@
+.PHONY: clean
+clean:
+	rm -f *.o *~ core
