@@ -1,7 +1,7 @@
 #include "NSxFile.h"
 #include <stdexcept>
 
-NSxFile::NSxFile(std::string filename) {
+NSxFile::NSxFile(const std::string& filename) {
     
     file.open(filename, std::ios_base::binary | std::ios_base::binary);
     file.exceptions(std::ifstream::failbit | std::ifstream::badbit);

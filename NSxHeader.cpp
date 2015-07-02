@@ -63,7 +63,7 @@ std::ostream& operator<<(std::ostream& out, const SystemTime& t) {
 std::string SystemTime::str() {
     std::ostringstream s;
     
-    s << this;
+    s << *this;
     return(s.str());
     
 }

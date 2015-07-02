@@ -9,6 +9,8 @@
 #ifndef _typeHelper_h
 #define _typeHelper_h
 
+#include <string>
+#include <exception>
 #include <iostream>
 #include <cstdint>
 
@@ -22,8 +24,8 @@ namespace MW {
 
 template<typename T>
 MW::mxClassID typeHelper() {
-    throw("Not implemented");
-    return (MW::mxUNKNOWN_CLASS);
+    throw(std::logic_error("Unknown class of type" + std::string(typeid(T).name())));
+    return (MW::mxUNKNOWN_CLASS); //Obviously can't reach this...
 }
 
 template <>

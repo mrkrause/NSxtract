@@ -19,6 +19,19 @@ struct Filter {
     std::uint32_t cornerFreq;
     std::uint32_t order;
     FilterType type;
+    friend std::ostream& operator<<(std::ostream& out, const Filter& filter) {
+        switch(filter.type) {
+            case NONE:
+                out << "None";
+                break;
+            case BUTTERWORTH:
+                out <<  "Butterworth (Corner Frequency: " << (filter.cornerFreq)/1000.0  << "Hz Order: " << filter.order << ')';
+                break;
+            case CHEBYSHEV:
+                out << "Butterworth (Corner Frequency: " << filter.cornerFreq/1000.0 << "Hz Order: " << filter.order << ')';
+        }
+        return out;
+    }
 };
 #pragma pack(pop)
 

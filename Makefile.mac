@@ -4,7 +4,7 @@ CFLAGS=-client engine -g  -I/opt/local/include -L/opt/local/lib/ -DMAT_FILE_SUPP
 LIBS=-lFLAC -lFLAC++ -lboost_program_options-mt -lboost_filesystem-mt -lboost_system-mt
 TARGET = rippleToFlac
 DEPS = NSxFile.h Config.h
-OBJ = typeHelper.o MatFile.o Config.o NSxFile.o NSxChannel.o NSxHeader.o nsx2mat.o rippleToFlac.o
+OBJ = typeHelper.o MatFile.o Config.o NSxFile.o NSxChannel.o NSxHeader.o nsx2mat.o nsx2txt.o rippleToFlac.o
 
 
 %.o: %.cpp $(DEPS)

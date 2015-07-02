@@ -44,50 +44,60 @@ void doEncode(ThreadData d);
 
 int main(int argc, char *argv[]) {
   
-  /* Parse input options */
-  Config config;
-  try {
-    config.parse(argc, argv);
-  } catch (std::exception e) {
-    std::cerr << e.what() << std::endl;
-    return -1;
-  }
+    /* Parse input options */
+    Config config;
+    try {
+        config.parse(argc, argv);
+    } catch (std::exception e) {
+        std::cerr << e.what() << std::endl;
+        return -1;
+    }
 
-  NSxFile f(config.inputFile());  
-
-  /* Prepare the FLAC encoders*/
-  EncoderBank encoders;
-  encoders.reserve(f.getChannelCount());    
-
-  unsigned i = 0;
-  for(auto ch=f.channelBegin(); ch!=f.channelEnd(); i++, ch++) {  
-    encoders.push_back(std::unique_ptr<FLAC::Encoder::File>(new FLAC::Encoder::File));       
-
-    bool ok = true;
-    ok &= encoders[i]->set_channels(1);
-    ok &= encoders[i]->set_bits_per_sample(16); //fixed by Ripple hardware
-    ok &= encoders[i]->set_compression_level(config.flacCompression());
-    ok &= encoders[i]->set_sample_rate(f.getSamplingFreq());
-
-    if(!ok) {
-      throw(std::runtime_error("Unable to configure FLAC encoder"));
+    NSxFile f(config.inputFile());
+  
+    if(config.matlabHeader()) {
+        f.writeMatHeader(config);
     }
     
-    std::string filename = config.outputFilename((*ch).getNumericID());    
-    encoders[i]->init(filename.c_str());
-  }
-
-  try {
-    if(config.nThreads() == 1) {
-      process_singleThreaded(f, config, encoders);
-    } else {
-      process_multiThreaded(f, config, encoders);
+    if(config.textHeader()) {
+        f.writeTxtHeader(config);
     }
-  } catch (std::runtime_error &e) {
-    std::cerr << "Caught an exception: " << e.what() << std::endl;
-    return -1;
-  }
-  return 0;
+    
+    if(config.compressData()) {
+        EncoderBank encoders;
+        encoders.reserve(f.getChannelCount());
+
+        unsigned i = 0;
+        for(auto ch=f.channelBegin(); ch!=f.channelEnd(); i++, ch++) {
+            encoders.push_back(std::unique_ptr<FLAC::Encoder::File>(new FLAC::Encoder::File));
+
+            bool ok = true;
+            ok &= encoders[i]->set_channels(1);
+            ok &= encoders[i]->set_bits_per_sample(16); //fixed by Ripple hardware
+            ok &= encoders[i]->set_compression_level(config.flacCompression());
+            ok &= encoders[i]->set_sample_rate(f.getSamplingFreq());
+
+            if(!ok) {
+                throw(std::runtime_error("Unable to configure FLAC encoder"));
+            }
+    
+            std::string filename = config.outputFilename((*ch).getNumericID());
+            encoders[i]->init(filename.c_str());
+        }
+
+        try {
+            if(config.nThreads() == 1)
+                process_singleThreaded(f, config, encoders);
+            else
+                process_multiThreaded(f, config, encoders);
+            
+            } catch (std::runtime_error &e) {
+                std::cerr << "Caught an exception: " << e.what() << std::endl;
+                return -1;
+        }
+    }
+    
+    return 0;
 }
 
 void process_singleThreaded(NSxFile &f, const Config &config, EncoderBank &encoders) {

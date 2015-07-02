@@ -55,6 +55,9 @@ public:
     std::uint32_t getChannelCount() const { return channelCount;}
     std::uint32_t getOffset() const { return offset;}
 
+    std::uint32_t getSamplingPeriod() const { return samplingPeriod;}
+    std::uint32_t getTimeResolution() const { return timeResolution ;}
+
     std::uint8_t getMajorVersion() const {  return majorVersion; }
     std::uint8_t getMinorVersion() const {  return minorVersion; }
     

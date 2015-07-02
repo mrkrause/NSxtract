@@ -18,6 +18,7 @@ namespace MW {
     // These are the original header files from the MathWorks.
     #include "mat.h"
     #include "matrix.h"
+    const mwSize SCALAR_SIZE[2] = { static_cast<mwSize>(1), static_cast<mwSize>(1)};
 }
 
 #include "typeHelper.h"
@@ -38,7 +39,7 @@ class MATFile {
     };
 
 public:
-    MATFile(std::string _filename, std::string _mode);
+    MATFile(const std::string& _filename, const std::string& _mode);
     ~MATFile();
   
     FILE * getFP();
@@ -47,13 +48,13 @@ public:
     bool isReadable() const   { return(mode & READABLE); }
     bool isWritable() const  { return(mode & WRITABLE); }
     
-    MW::mxArray* rawGetVar(std::string varname);
-    MW::mxArray* rawGetInfo(std::string varname);
+    MW::mxArray* rawGetVar(const std::string& varname);
+    MW::mxArray* rawGetInfo(const std::string& varname);
 
     
 
     template <typename Scalar>
-    void putScalar(std::string varname, Scalar value, bool asGlobal = false) {
+    void putScalar(const std::string& varname, const Scalar value, bool asGlobal = false) {
         
         const MW::mwSize scalar[2] = {static_cast<MW::mwSize>(1), static_cast<MW::mwSize>(1)};
         MW::mxArray* newval = MW::mxCreateNumericArray(static_cast<MW::mwSize>(2),
@@ -69,7 +70,7 @@ public:
     }
     
     template <typename Scalar>
-    void putArray(std::string varname, const Scalar* values, MW::mwSize ndims, MW::mwSize* dims, bool asGlobal = false) {
+    void putArray(const std::string& varname, const Scalar* values, MW::mwSize ndims, const MW::mwSize* dims, bool asGlobal = false) {
         MW::mxArray* newval = MW::mxCreateNumericArray(ndims,
                                                        dims,
                                                        typeHelper<Scalar>(),
@@ -89,7 +90,7 @@ public:
         check_put_and_dealloc(varname, newval, asGlobal);
     }
    
-    void rmVar(std::string varname);
+    void rmVar(const std::string& varname);
     
     std::vector<std::string> getDir();
     
@@ -100,25 +101,28 @@ protected:
     int mode;
     std::string filename;
     
-    void  check_put_and_dealloc(std::string varname, MW::mxArray* newval, bool asGlobal);
+    void  check_put_and_dealloc(const std::string& varname, MW::mxArray* newval, bool asGlobal);
 };
 
 /* Specializations for MATFile::putScalar() */
 template <>
-void MATFile::putScalar<bool>(std::string varname, bool value, bool asGlobal);
+void MATFile::putScalar<bool>(const std::string& varname, const bool value, bool asGlobal);
 
 template <>
-void MATFile::putScalar<const char*>(std::string varname, const char* value, bool asGlobal);
+void MATFile::putScalar<const char*>(const std::string& varname, const char* value, bool asGlobal);
 
 template <>
-void MATFile::putScalar<double>(std::string varname, double value, bool asGlobal);
+void MATFile::putScalar<double>(const std::string& varname, const double value, bool asGlobal);
 
 template <>
-void MATFile::putScalar<std::string>(std::string varname, std::string value, bool asGlobal);
+void MATFile::putScalar<std::string>(const std::string& varname, const std::string value, bool asGlobal);
+
 
 template <>
-void MATFile::putScalar<>(std::string varname, MW::mxArray* value, bool asGlobal);
+void MATFile::putScalar<>(const std::string& varname, MW::mxArray* value, bool asGlobal);
 
+template <>
+void MATFile::putScalar<const std::string&>(const std::string& varname, const std::string& value, bool asGlobal);
 
 
 

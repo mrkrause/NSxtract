@@ -7,7 +7,7 @@
 //
 #include "MatFile.h"
 
-MATFile::MATFile(std::string _filename, std::string _mode) {
+MATFile::MATFile(const std::string& _filename, const std::string& _mode) {
     filename = _filename;
     
     mode = 0;
@@ -44,7 +44,7 @@ void MATFile::close() {
     MW::matClose(mfp);
 }
 
-void MATFile::rmVar(std::string varname) {
+void MATFile::rmVar(const std::string& varname) {
     if(!(isReadable() && isWritable()))
         throw(std::runtime_error("File " + filename + " must be readable and writable to remove variables (open with mode \"u\"."));
     
@@ -72,7 +72,7 @@ std::vector<std::string> MATFile::getDir() {
     return v;
 }
 
-MW::mxArray* MATFile::rawGetVar(std::string varname) {
+MW::mxArray* MATFile::rawGetVar(const std::string& varname) {
     /* Returns a pointer to the mxArray object associated with varname, or
      returns a null pointer if the variable does not exist in this file.
      
@@ -87,7 +87,7 @@ MW::mxArray* MATFile::rawGetVar(std::string varname) {
     return ptr;
 }
 
-MW::mxArray* MATFile::rawGetInfo(std::string varname) {
+MW::mxArray* MATFile::rawGetInfo(const std::string& varname) {
     /* Returns a pointer to the mxArray object's header associated with varname, or
      returns a null pointer if the variable does not exist in this file.
      
@@ -103,7 +103,7 @@ MW::mxArray* MATFile::rawGetInfo(std::string varname) {
 
 
 template <>
-void MATFile::putScalar<>(std::string varname, MW::mxArray* value, bool asGlobal) {
+void MATFile::putScalar<>(const std::string& varname, MW::mxArray* value, bool asGlobal) {
     if(!isWritable())
         throw(std::runtime_error("File " + filename + " is was not opened for writing (or has been closed)"));
     
@@ -121,32 +121,37 @@ void MATFile::putScalar<>(std::string varname, MW::mxArray* value, bool asGlobal
 }
 
 template <>
-void MATFile::putScalar<std::string>(std::string varname, std::string value, bool asGlobal) {
+void MATFile::putScalar<const std::string>(const std::string& varname, const std::string value, bool asGlobal) {
     MW::mxArray* newval = MW::mxCreateString(value.c_str());
     check_put_and_dealloc(varname, newval, asGlobal);
 }
 
+template <>
+void MATFile::putScalar<const std::string&>(const std::string& varname, const std::string& value, bool asGlobal) {
+    MW::mxArray* newval = MW::mxCreateString(value.c_str());
+    check_put_and_dealloc(varname, newval, asGlobal);
+}
 
 template <>
-void MATFile::putScalar<const char*>(std::string varname, const char* value, bool asGlobal) {
+void MATFile::putScalar<const char*>(const std::string& varname, const char* value, bool asGlobal) {
     MW::mxArray* newval = MW::mxCreateString(value);
     check_put_and_dealloc(varname, newval, asGlobal);
 }
 
 template <>
-void MATFile::putScalar<bool>(std::string varname, bool value, bool asGlobal) {
+void MATFile::putScalar<bool>(const std::string& varname, const bool value, bool asGlobal) {
     MW::mxArray* newval = MW::mxCreateLogicalScalar(value);
     check_put_and_dealloc(varname, newval, asGlobal);
 }
 
 template <>
-void MATFile::putScalar<double>(std::string varname, double value, bool asGlobal) {
+void MATFile::putScalar<double>(const std::string& varname, const double value, bool asGlobal) {
     MW::mxArray* newval = MW::mxCreateDoubleScalar(value);
     check_put_and_dealloc(varname, newval, asGlobal);
 }
 
 
-void MATFile::check_put_and_dealloc(std::string varname, MW::mxArray* newval, bool asGlobal) {
+void MATFile::check_put_and_dealloc(const std::string& varname, MW::mxArray* newval, bool asGlobal) {
     /* This is a silly little wrapper around putScalar<MW::mxArray*> that
      - checks whether the mxArray is NULL (and throws if it is),
      - attempts to call putScalar<MW::mxArray*>, and

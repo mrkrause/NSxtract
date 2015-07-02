@@ -10,16 +10,21 @@
 #ifndef __NSxFile__
 #define __NSxFile__
 
+#include <limits>
 #include <stdexcept>
 #include <vector>
 
 #include "NSxHeader.h"
 #include "NSxChannel.h"
 
+#include "Config.h"
+#ifdef MAT_FILE_SUPPORT
+#include "matFile.h"
+#endif
 
 class NSxFile {
 public:
-    NSxFile(std::string filename);
+    NSxFile(const std::string& filename);
     
     size_t readData(std::uint32_t nSamples, int16_t* &buffer);
     bool hasMoreData() const { return dataAvailable; }
@@ -28,6 +33,11 @@ public:
     NSxFile& operator=(NSxFile & rhs) = delete;
     
     // Access to the header
+#ifdef MAT_FILE_SUPPORT
+    void writeMatHeader(const Config &c);
+#endif
+    void writeTxtHeader(const Config &c);
+    
     std::uint32_t getChannelCount() { return header.getChannelCount(); }
     double getSamplingFreq() { return header.getSamplingFreq(); }
     
