@@ -19,7 +19,7 @@
 
 #include "Config.h"
 #ifdef MAT_FILE_SUPPORT
-#include "matFile.h"
+#include "MatFile.h"
 #endif
 
 class NSxFile {

@@ -9,7 +9,9 @@
 #ifndef _typeHelper_h
 #define _typeHelper_h
 
+#include <typeinfo>
 #include <string>
+#include <stdexcept>
 #include <exception>
 #include <iostream>
 #include <cstdint>

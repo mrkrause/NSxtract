@@ -1,4 +1,4 @@
-CC=i686-pc-mingw32-g++
+CC=x86_64-w64-mingw32-g++
 CFLAGS= -O3 -Wall -Werror -std=gnu++11
 LIBS=-logg -lFLAC -logg -lFLAC++ -logg -lFLAC -logg -lboost_program_options-mt -lboost_filesystem-mt -lboost_system-mt
 TARGET = rippleToFlac
