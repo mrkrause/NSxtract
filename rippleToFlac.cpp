@@ -53,6 +53,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
+    try {
     NSxFile f(config.inputFile());
   
     if(config.matlabHeader()) {
@@ -98,6 +99,11 @@ int main(int argc, char *argv[]) {
     }
     
     return 0;
+    }
+    catch (const std::exception &e) {
+      std::cerr << e.what();
+      return -1;
+    }
 }
 
 void process_singleThreaded(NSxFile &f, const Config &config, EncoderBank &encoders) {

@@ -65,7 +65,6 @@ public:
             Scalar* data = static_cast<Scalar*>(MW::mxGetData(newval));
             data[0] = value;
         }
-        
         check_put_and_dealloc(varname, newval, asGlobal);
     }
     

@@ -50,10 +50,15 @@ void NSxFile::writeMatHeader(const Config& config) {
         "filename"            // 13
     };
     
-    MW::mwSize channel_dims[2] = {192, 1};
+    MW::mwSize channel_dims[2] = {
+      static_cast<MW::mwSize>(header.getChannelCount()), 
+      1};
     
     MW::mxArray* chandata = MW::mxCreateStructArray(2, channel_dims, 14, channel_fieldnames);
-    
+    if(!chandata) {
+      throw(std::runtime_error("Could not initalize channel data"));
+    }
+
     int index = 0;
     for(auto chan_iter=channelBegin(); chan_iter!=channelEnd(); chan_iter++, index++) {
         NSxChannel chan = *chan_iter;

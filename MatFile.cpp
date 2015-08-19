@@ -36,7 +36,7 @@ MATFile::MATFile(const std::string& _filename, const std::string& _mode) {
 }
 
 MATFile::~MATFile() {
-    int result = MW::matClose(mfp);
+  MW::matClose(mfp);
 }
 
 void MATFile::close() {
@@ -117,7 +117,7 @@ void MATFile::putScalar<>(const std::string& varname, MW::mxArray* value, bool a
     
     if(status) {
         throw(std::runtime_error("Unable to write variable " + varname + " to file " + filename + "."));
-    }
+    }  
 }
 
 template <>
@@ -170,10 +170,12 @@ void MATFile::check_put_and_dealloc(const std::string& varname, MW::mxArray* new
         putScalar<MW::mxArray*>(varname, newval, asGlobal);
     } catch (...) {
         MW::mxDestroyArray(newval);
+	newval = 0;
         throw;
     }
 
     MW::mxDestroyArray(newval);
+    newval = 0;
 }
 
 
