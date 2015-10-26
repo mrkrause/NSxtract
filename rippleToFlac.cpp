@@ -36,9 +36,10 @@ struct ThreadData {
   unsigned start;
   unsigned stop;
 };
-  
-void process_singleThreaded(NSxFile &f, const Config &c, EncoderBank &e);
-void process_multiThreaded(NSxFile &f, const Config &config, EncoderBank &encoders);
+
+void runConfiguration(const Config & c);
+void encode_singleThreaded(NSxFile &f, const Config &c, EncoderBank &e);
+void encode_multiThreaded(NSxFile &f, const Config &config, EncoderBank &encoders);
 void doEncode(ThreadData d);
 
 
@@ -53,60 +54,66 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    try {
-    NSxFile f(config.inputFile());
-  
-    if(config.matlabHeader()) {
-        f.writeMatHeader(config);
-    }
+    std::cout << config;
+      
+      
     
-    if(config.textHeader()) {
-        f.writeTxtHeader(config);
+    WorkQueue work = config.toWorkQueue();
+    for (Config c: work) {
+      try {
+	std::cout << c;
+	runConfiguration(c);
+      } catch (std::runtime_error e) {
+	std::cerr << "Error processing configuration: " << e.what() << std::endl;
+	throw(e);
+	  
+      }
     }
-    
-    if(config.compressData()) {
-        EncoderBank encoders;
-        encoders.reserve(f.getChannelCount());
-
-        unsigned i = 0;
-        for(auto ch=f.channelBegin(); ch!=f.channelEnd(); i++, ch++) {
-            encoders.push_back(std::unique_ptr<FLAC::Encoder::File>(new FLAC::Encoder::File));
-
-            bool ok = true;
-            ok &= encoders[i]->set_channels(1);
-            ok &= encoders[i]->set_bits_per_sample(16); //fixed by Ripple hardware
-            ok &= encoders[i]->set_compression_level(config.flacCompression());
-            ok &= encoders[i]->set_sample_rate(f.getSamplingFreq());
-
-            if(!ok) {
-                throw(std::runtime_error("Unable to configure FLAC encoder"));
-            }
-    
-            std::string filename = config.outputFilename((*ch).getNumericID());
-            encoders[i]->init(filename.c_str());
-        }
-
-        try {
-            if(config.nThreads() == 1)
-                process_singleThreaded(f, config, encoders);
-            else
-                process_multiThreaded(f, config, encoders);
-            
-            } catch (std::runtime_error &e) {
-                std::cerr << "Caught an exception: " << e.what() << std::endl;
-                return -1;
-        }
-    }
-    
-    return 0;
-    }
-    catch (const std::exception &e) {
-      std::cerr << e.what();
-      return -1;
-    }
+      
 }
 
-void process_singleThreaded(NSxFile &f, const Config &config, EncoderBank &encoders) {
+void runConfiguration(const Config &config) {
+  NSxFile f(config.input());
+  
+  if(config.matlabHeader()) {
+    f.writeMatHeader(config);
+  }
+  
+  if(config.textHeader()) {
+    f.writeTxtHeader(config);
+  }
+  
+  if(config.compressData()) {
+    EncoderBank encoders;
+    encoders.reserve(f.getChannelCount());
+    
+    unsigned i = 0;
+    for(auto ch=f.channelBegin(); ch!=f.channelEnd(); i++, ch++) {
+      encoders.push_back(std::unique_ptr<FLAC::Encoder::File>(new FLAC::Encoder::File));
+      
+      bool ok = true;
+      ok &= encoders[i]->set_channels(1);
+      ok &= encoders[i]->set_bits_per_sample(16); //fixed by Ripple hardware
+      ok &= encoders[i]->set_compression_level(config.flacCompression());
+      ok &= encoders[i]->set_sample_rate(f.getSamplingFreq());
+      
+      if(!ok) {
+	throw(std::runtime_error("Unable to configure FLAC encoder"));
+      }
+      
+      std::string filename = config.outputFilename((*ch).getNumericID());
+      encoders[i]->init(filename.c_str());
+    }
+    
+    if(config.nThreads() == 1)
+      encode_singleThreaded(f, config, encoders);
+    else
+      encode_multiThreaded(f, config, encoders);
+  }
+}
+
+
+void encode_singleThreaded(NSxFile &f, const Config &config, EncoderBank &encoders) {
     
   std::int16_t* bulkBuffer = nullptr; // Allocated by f.readData; deleted below
 
@@ -136,7 +143,7 @@ void process_singleThreaded(NSxFile &f, const Config &config, EncoderBank &encod
   delete[] channelBuffer;
 }
 
-void process_multiThreaded(NSxFile &f, const Config &config, EncoderBank &encoders) {
+void encode_multiThreaded(NSxFile &f, const Config &config, EncoderBank &encoders) {
 
   /* After watching a few runs, it looks like this program is almost always 
      CPU-bound (surprisingly little I/O waiting). So...let's get some more CPUs! */
