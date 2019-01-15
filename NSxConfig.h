@@ -1,11 +1,13 @@
-#ifndef __CONVERT_CONFIG__
-#define __CONVERT_CONFIG__
+#pragma once
+#ifndef NSXCONFIG_H_INCLUDED
+#define NSXCONFIG_H_INCLUDED
 
 #include <exception>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <cstdint>
 
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
@@ -13,13 +15,13 @@
 namespace opts = boost::program_options;
 namespace fs = boost::filesystem;
 
-class Config;
-typedef std::vector<Config> WorkQueue;
+class NSxConfig;
+typedef std::vector<NSxConfig> WorkQueue;
 
-class Config {
+class NSxConfig {
 
  public:
-    Config();
+    NSxConfig();
     void parse(int argc, char* argv[]);
 
     std::string input(void) const;
@@ -41,7 +43,7 @@ class Config {
     bool valid(void) const { return(_valid); }
     bool isSingleFileConfig(void) const { return(_singleFile); }
 
-    friend std::ostream& operator<<(std::ostream &out, const Config &c);
+    friend std::ostream& operator<<(std::ostream &out, const NSxConfig &c);
     WorkQueue toWorkQueue();
     
  private:

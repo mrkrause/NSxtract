@@ -1,7 +1,7 @@
-#include "Config.h"
+#include "NSxConfig.h"
 
 
-Config::Config(void) : _valid(false), desc("Convert a Ripple NSx file to losslessly-compressed FLAC files") {
+NSxConfig::NSxConfig(void) : _valid(false), desc("Convert a Ripple NSx file to losslessly-compressed FLAC files") {
   desc.add_options()
     ("help", "Show this help message")
     ("input,i", 
@@ -39,7 +39,7 @@ Config::Config(void) : _valid(false), desc("Convert a Ripple NSx file to lossles
 }
 
 
-unsigned int Config::nThreads(void) const {
+unsigned int NSxConfig::nThreads(void) const {
   if(_valid) 
     return _nThreads;
   else
@@ -47,7 +47,7 @@ unsigned int Config::nThreads(void) const {
 }
 
 
-unsigned int Config::readSize(void) const {
+unsigned int NSxConfig::readSize(void) const {
   if(_valid)
     return _readSize;
   else
@@ -55,7 +55,7 @@ unsigned int Config::readSize(void) const {
 }
 
 
-unsigned int Config::flacCompression(void) const {
+unsigned int NSxConfig::flacCompression(void) const {
   if(_valid)
     return _flacCompression;
   else
@@ -63,7 +63,7 @@ unsigned int Config::flacCompression(void) const {
 }
 
 
-std::string Config::input(void) const {
+std::string NSxConfig::input(void) const {
   if(_valid)
     return _input;
   else
@@ -71,7 +71,7 @@ std::string Config::input(void) const {
 }
 
 
-std::string Config::outputDir(void) const {
+std::string NSxConfig::outputDir(void) const {
   if(_valid)
     return _outputDir;
   else
@@ -79,7 +79,7 @@ std::string Config::outputDir(void) const {
 }
 
 
-std::string Config::outputPrefix(void) const {
+std::string NSxConfig::outputPrefix(void) const {
     if(!_valid)
         throw(std::runtime_error("Options not initalized"));
     
@@ -87,7 +87,7 @@ std::string Config::outputPrefix(void) const {
 }
 
 
-bool Config::matlabHeader(void) const {
+bool NSxConfig::matlabHeader(void) const {
     if(_valid)
         return _matlabHeader;
     else
@@ -95,21 +95,21 @@ bool Config::matlabHeader(void) const {
 }
 
 
-bool Config::textHeader(void) const {
+bool NSxConfig::textHeader(void) const {
     if(_valid)
         return _textHeader;
     else
         throw(std::runtime_error("Options not initalized"));
 }
 
-bool Config::compressData(void) const {
+bool NSxConfig::compressData(void) const {
     if(_valid)
         return _compressData;
     else
         throw(std::runtime_error("Options not initalized"));
 }
 
-void Config::parse(int argc, char* argv[]) {
+void NSxConfig::parse(int argc, char* argv[]) {
 
   opts::variables_map vm;
   opts::store(opts::command_line_parser(argc, argv).
@@ -150,7 +150,7 @@ void Config::parse(int argc, char* argv[]) {
   _valid = true;
 }
 
-void Config::setInput(const opts::variables_map& vm) {
+void NSxConfig::setInput(const opts::variables_map& vm) {
 
  if(!vm.count("input")) 
   throw(std::runtime_error("No input file or directory found!"));
@@ -172,7 +172,7 @@ void Config::setInput(const opts::variables_map& vm) {
 
 
 
-void Config::setOutputDir(const opts::variables_map& vm) {
+void NSxConfig::setOutputDir(const opts::variables_map& vm) {
   this->_outputDir = vm["output-dir"].as<std::string>();
   this->outputPath = fs::path(this->_outputDir);
 
@@ -183,7 +183,7 @@ void Config::setOutputDir(const opts::variables_map& vm) {
   return;
 }
 
-void Config::setOutputDir(const fs::path &p) {
+void NSxConfig::setOutputDir(const fs::path &p) {
   this->outputPath = p;
   this->_outputDir = p.string();
 
@@ -195,7 +195,7 @@ void Config::setOutputDir(const fs::path &p) {
 }
 
   
-std::string Config::outputFilename(std::uint16_t electrode, bool withPath) const {
+std::string NSxConfig::outputFilename(std::uint16_t electrode, bool withPath) const {
   std::ostringstream str;
   
   str << outputPrefix() << std::setfill('0') << std::setw(3) << electrode;
@@ -208,7 +208,7 @@ std::string Config::outputFilename(std::uint16_t electrode, bool withPath) const
 }
 
 
-std::string Config::matlabHeaderFilename() const {
+std::string NSxConfig::matlabHeaderFilename() const {
     std::string filename = outputPrefix();
     auto startAt = filename.find_last_of("_");
     
@@ -221,7 +221,7 @@ std::string Config::matlabHeaderFilename() const {
 }
 
 
-std::string Config::textHeaderFilename() const {
+std::string NSxConfig::textHeaderFilename() const {
     std::string filename = outputPrefix();
     auto startAt = filename.find_last_of("_");
     
@@ -234,7 +234,7 @@ std::string Config::textHeaderFilename() const {
 }
 
 
-WorkQueue Config::toWorkQueue() {
+WorkQueue NSxConfig::toWorkQueue() {
   WorkQueue work;
 
   //Easy case: inputFile is a single file
@@ -253,7 +253,7 @@ WorkQueue Config::toWorkQueue() {
   for(fs::directory_iterator i(_input); i!=end_of_dir; ++i) {
     fs::path p  = i->path();
     if((fs::is_regular_file(p) || fs::is_symlink(p)) && p.extension() == ".ns5") {
-      Config fileConfig(*this);
+      NSxConfig fileConfig(*this);
 
       fileConfig._input = p.string();
 
@@ -278,7 +278,7 @@ WorkQueue Config::toWorkQueue() {
 }
 
 
-std::ostream& operator<<(std::ostream &out, const Config &c) {
+std::ostream& operator<<(std::ostream &out, const NSxConfig &c) {
   out << "Ripple-To-FLac Conversation Configuration: " << std::endl <<
     "\t Input: " << c._input << std::endl <<
     "\t Output Directory: " << c._outputDir << std::endl <<
