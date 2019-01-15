@@ -20,26 +20,7 @@ See also: NSxChannel.h, which represents individual channels.
 #include <stdexcept>
 #include <cstdint>
 
-// We're doing the lazy thing and reading this whole struct in at once
-// This depends critically on having sizeof(SystemTime)==16, so use
-// #pragma pack to remove any alignment.
-// This is a little brittle, but we also don't care very much so....
-#pragma pack(push,1)
-struct SystemTime {
-    std::uint16_t year;
-    std::uint16_t month;
-    std::uint16_t dayOfWeek;
-    std::uint16_t day;
-    std::uint16_t hour;
-    std::uint16_t minute;
-    std::uint16_t second;
-    std::uint16_t millisecond;
-
-    std::string str();
-    friend std::ostream& operator<<(std::ostream& out, const SystemTime& t);
-};
-#pragma pack(pop)
-
+#include "systemtime.h"
 
 
 class NSxHeader {
