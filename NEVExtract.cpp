@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <iostream>
 #include <cstdint>
 
@@ -123,6 +124,7 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
+
 template<typename T>
 std::string toStringHelper(std::shared_ptr<WavePacket> wp, char delim) {
   std::ostringstream ss;
@@ -135,6 +137,7 @@ std::string toStringHelper(std::shared_ptr<WavePacket> wp, char delim) {
   
   return ss.str();
 }
+
 
 std::uint8_t getBytesPerSample(const NEVFile &file, const NEVConfig &config, std::uint16_t electrodeID, bool isStim=false) {
   std::uint8_t bytesPerSample = 0;
@@ -221,9 +224,9 @@ void saveStimCSV(const NEVConfig &config, const NEVFile &file, const std::vector
     throw(std::runtime_error("Unable to open " + filename + " for writing."));
   }
 
-  out << "Time ,Tic, Channel";
+  out << "Time,Tic,Channel";
   if(config.includeStimWaves())
-    out << ", Waveform";
+    out << ",Waveform";
   out << "\n";
   
    for(auto p = sp.begin(); p != sp.end(); p++) {

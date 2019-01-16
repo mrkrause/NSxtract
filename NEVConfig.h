@@ -1,12 +1,12 @@
 #ifndef NEVCONFIG_H_INCLUDED
 #define NEVCONFIG_H_INCLUDED
 
+#include <cstddef>
 #include <exception>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <string>
-
 #include <boost/program_options.hpp>
 #include <boost/filesystem.hpp>
 

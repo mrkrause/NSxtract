@@ -2,6 +2,7 @@
 #ifndef __NEVFile_h__
 #define __NEVFile_h__
 
+#include <stddef.h>
 #include <cstdint>
 #include <fstream>
 #include <stdexcept>

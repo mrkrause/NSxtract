@@ -1,8 +1,9 @@
+#pragma once
 #ifndef DATAPACKET_H_INCLUDED
 #define DATAPACKET_H_INCLUDED
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <iostream>
 #include <sstream>
 #include <string>
