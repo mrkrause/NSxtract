@@ -29,7 +29,7 @@ NEVFile::~NEVFile() {
 }
 
 std::uint32_t NEVFile::readBasicHeader() {
-  char* buffer = new char[200];
+  char* buffer = new char[200]; //largest field is 200 bytes (we'll reuse this)
 
   /* Read the magic word to ensure this is the right kind of file*/      
   file.read(buffer, sizeof(char)*8);

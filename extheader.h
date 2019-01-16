@@ -64,7 +64,7 @@ struct Header {
   std::uint16_t electrodeID;
   std::uint8_t frontEndID;
   std::uint8_t pin;
-  std::uint8_t  bytesPerSample;
+  std::uint8_t bytesPerSample;
   float scaleFactor;
 
   Header(const NEUEVWAV &n):

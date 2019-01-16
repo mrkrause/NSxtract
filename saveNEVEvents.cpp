@@ -4,7 +4,7 @@ struct EventSOA;
 #include <string>
 #include "NEVConfig.h"
 #include "NEVFile.h"
-#include "Matfile.h"
+#include "MatFile.h"
 #include "eventsoa.h"
 
 void saveEventsCSV(const NEVConfig &config, const NEVFile &file, const EventSOA &ev) {
