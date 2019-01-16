@@ -6,7 +6,7 @@
 #include <memory>
 
 
-#include "Config.h"
+#include "NSxConfig.h"
 #include "NSxFile.h"
 
 #ifdef WINDOWS
@@ -37,16 +37,16 @@ struct ThreadData {
   unsigned stop;
 };
 
-void runConfiguration(const Config & c);
-void encode_singleThreaded(NSxFile &f, const Config &c, EncoderBank &e);
-void encode_multiThreaded(NSxFile &f, const Config &config, EncoderBank &encoders);
+void runConfiguration(const NSxConfig & c);
+void encode_singleThreaded(NSxFile &f, const NSxConfig &c, EncoderBank &e);
+void encode_multiThreaded(NSxFile &f, const NSxConfig &config, EncoderBank &encoders);
 void doEncode(ThreadData d);
 
 
 int main(int argc, char *argv[]) {
   
     /* Parse input options */
-    Config config;
+    NSxConfig config;
     try {
         config.parse(argc, argv);
     } catch (std::exception e) {
@@ -56,10 +56,9 @@ int main(int argc, char *argv[]) {
 
     std::cout << config;
       
-      
-    
+          
     WorkQueue work = config.toWorkQueue();
-    for (Config c: work) {
+    for (NSxConfig c: work) {
       try {
 	std::cout << c;
 	runConfiguration(c);
@@ -72,7 +71,7 @@ int main(int argc, char *argv[]) {
       
 }
 
-void runConfiguration(const Config &config) {
+void runConfiguration(const NSxConfig &config) {
   NSxFile f(config.input());
   
   if(config.matlabHeader()) {
@@ -113,7 +112,7 @@ void runConfiguration(const Config &config) {
 }
 
 
-void encode_singleThreaded(NSxFile &f, const Config &config, EncoderBank &encoders) {
+void encode_singleThreaded(NSxFile &f, const NSxConfig &config, EncoderBank &encoders) {
     
   std::int16_t* bulkBuffer = nullptr; // Allocated by f.readData; deleted below
 
@@ -143,7 +142,7 @@ void encode_singleThreaded(NSxFile &f, const Config &config, EncoderBank &encode
   delete[] channelBuffer;
 }
 
-void encode_multiThreaded(NSxFile &f, const Config &config, EncoderBank &encoders) {
+void encode_multiThreaded(NSxFile &f, const NSxConfig &config, EncoderBank &encoders) {
 
   /* After watching a few runs, it looks like this program is almost always 
      CPU-bound (surprisingly little I/O waiting). So...let's get some more CPUs! */
