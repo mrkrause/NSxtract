@@ -6,9 +6,9 @@
    See also: NSxHeader (contains information about the whole file), and
              NSxChannel (contains information about each channel)
 */
-
-#ifndef __NSxFile__
-#define __NSxFile__
+#pragma once
+#ifndef NSXFILE_H_INCLUDED
+#define NSXFILE_H_INCLUDED
 
 #include <limits>
 #include <stdexcept>
@@ -17,7 +17,7 @@
 #include "NSxHeader.h"
 #include "NSxChannel.h"
 
-#include "Config.h"
+#include "NSxConfig.h"
 #ifdef MAT_FILE_SUPPORT
 #include "MatFile.h"
 #endif
@@ -34,9 +34,9 @@ public:
     
     // Access to the header
 #ifdef MAT_FILE_SUPPORT
-    void writeMatHeader(const Config &c);
+    void writeMatHeader(const NSxConfig &c);
 #endif
-    void writeTxtHeader(const Config &c);
+    void writeTxtHeader(const NSxConfig &c);
     
     std::uint32_t getChannelCount() { return header.getChannelCount(); }
     double getSamplingFreq() { return header.getSamplingFreq(); }
