@@ -6,10 +6,10 @@
 //
 //
 #include "NSxFile.h"
-#include "Config.h"
+#include "NSxConfig.h"
 #include <fstream>
 
-void NSxFile::writeTxtHeader(const Config& config) {
+void NSxFile::writeTxtHeader(const NSxConfig& config) {
 
     std::string filename = config.textHeaderFilename();
     std::ofstream txtfile(filename, std::ofstream::out | std::ofstream::trunc);

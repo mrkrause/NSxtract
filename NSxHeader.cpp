@@ -55,18 +55,6 @@ std::ostream& operator<<(std::ostream& out, const NSxHeader& h) // output
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, const SystemTime& t) {
-    out << t.year << '-' << t.month << '-' << t.day << ' ' << t.hour << ':' << t.minute << ':' << t.second << '.' << t.millisecond;
-    return out;
-}
-
-std::string SystemTime::str() {
-    std::ostringstream s;
-    
-    s << *this;
-    return(s.str());
-    
-}
 
 double NSxHeader::getSamplingFreq() const {
     return double(timeResolution)/double(samplingPeriod);

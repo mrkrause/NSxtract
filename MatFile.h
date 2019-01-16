@@ -1,13 +1,6 @@
-//
-//  MatFile.h
-//  
-//
-//  Created by Matthew Krause on 6/16/15.
-//
-//
-
-#ifndef ____MatFile__
-#define ____MatFile__
+#pragma once
+#ifndef MATFILE_H_INCLUDED
+#define MATFILE_H_INCLUDED
 
 #include <iostream>
 #include <string>

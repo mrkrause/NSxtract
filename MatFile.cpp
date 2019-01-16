@@ -36,7 +36,9 @@ MATFile::MATFile(const std::string& _filename, const std::string& _mode) {
 }
 
 MATFile::~MATFile() {
-  MW::matClose(mfp);
+  if(mode) {
+    MW::matClose(mfp);
+  }
 }
 
 void MATFile::close() {

@@ -7,12 +7,12 @@
 //
 
 #include "NSxFile.h"
-#include "Config.h"
+#include "NSxConfig.h"
 
 MW::mxArray* filterToMxArray(const Filter &f);
 
 
-void NSxFile::writeMatHeader(const Config& config) {
+void NSxFile::writeMatHeader(const NSxConfig& config) {
     
     MATFile m(config.matlabHeaderFilename(), "wz");
     

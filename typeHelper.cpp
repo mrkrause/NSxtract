@@ -1,11 +1,3 @@
-//
-//  typeHelper.cpp
-//  
-//
-//  Created by Matthew Krause on 6/21/15.
-//
-//
-
 #include "typeHelper.h"
 
 
