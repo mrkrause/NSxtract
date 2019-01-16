@@ -50,7 +50,7 @@ struct WavePacket : Packet {
 
 
 struct SpikePacket : WavePacket {
-  std::uint8_t  unit;
+  std::uint8_t unit;
 
   SpikePacket();
   SpikePacket(const SpikePacket& rhs);

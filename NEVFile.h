@@ -26,7 +26,7 @@ enum DigitalMode: std::uint8_t {
 
 class NEVFile {
 public:
-  NEVFile(std::string filename, size_t BUFFERSIZE=1000000);
+  NEVFile(std::string filename, size_t BUFFERSIZE=1000);
   ~NEVFile();
 
   bool eof() const;
@@ -51,7 +51,12 @@ public:
   
   friend std::ostream& operator<<(std::ostream& out, const NEVFile& f);
 
-  auto timestampFS()   const {return fsTimestamp; }
+  auto get_timestampFS()   const {return fsTimestamp; }
+  auto get_waveformFS()    const {return fsWaveforms; }
+  auto get_start_sys()     const {return origin;}
+  auto get_comment()       const {return comment;}
+  auto get_creator()       const {return creator;}
+  auto get_spike_label(std::uint16_t id) {return labels[id];}
   auto allWaves16Bit() const {return flags&1; }
  protected:
   std::ifstream file;
