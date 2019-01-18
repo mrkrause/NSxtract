@@ -6,6 +6,7 @@
 #include <map>
 #include <iomanip>
 
+#include "nev2plx_config.h"
 #include "NEVFile.h"
 
 typedef std::map<std::uint16_t, int> IndexMap;
@@ -30,17 +31,26 @@ void write_spike(std::shared_ptr<SpikePacket> packet,
 std::map<std::uint16_t, int> channel_to_index(NEVFile &nev);
 
 
-int main(int argc, char* argv[]) {
-  std::string src_nev = "/home/mrk/slu55b.nev.nev";
-  std::string dst_plx = "/home/mrk/test.plx";
-  NEVFile nev(src_nev);
+int main(int argc, char* argv[]) {  
+  Config config;
+  try {
+    config.parse(argc, argv);
+  } catch(const std::exception &e) {
+    std::cerr << e.what() << std::endl;
+    return 1;
+  }
+
+  std::cout << config << std::endl;
   
-  auto map = channel_to_index(nev); 
+  NEVFile nev(config.get_input(), config.get_buffer_sz());
   
-  auto plx = std::fstream(dst_plx, std::ios::out | std::ios::binary);
+  auto map = channel_to_index(nev);   
+  auto plx = std::fstream(config.get_output(), std::ios::out | std::ios::binary);
+  
   write_file_header(nev, plx);
   write_spike_headers(nev, plx);
   write_event_headers(plx);
+
   auto  count = 0;
   while(!nev.eof()) {
     std::shared_ptr<Packet> packet = nev.readPacket(true, true, true);
@@ -80,7 +90,7 @@ void write_file_header(NEVFile &src, std::fstream &dst) {
   const std::int32_t SNIP_LENGTH = 52;          // From Ripple docs
   const std::int32_t PRETHRESH_SNIP_LENGTH = 15;// From Ripple docs
   const std::int32_t FAST_READ = 0;             // No idea!
-  const std::uint16_t PREAMP_GAIN = 1000;       // Not really relevant here...
+  const std::uint16_t PREAMP_GAIN = 1;       // Not really relevant here...
   const std::int8_t TRODALNESS = 1;             // No 255-trode for you....
   const char padding[46] = {'\0'};            
   const std::int32_t dummy_ts[130][5] = {0};    // Fill this in later
@@ -139,7 +149,7 @@ void write_file_header(NEVFile &src, std::fstream &dst) {
   dst.write((char*) &bps, sizeof(char));
   dst.write((char*) &bps, sizeof(char)); // Yes, repeated (for slow)
 	    
-  unsigned short peak_mv = 3000; // begin->scaleFactor * pow(2,bps - 1); *1e6;
+  unsigned short peak_mv = 8191; // begin->scaleFactor * pow(2,bps - 1); *1e6;
   dst.write((char*) &peak_mv, sizeof(peak_mv));
   dst.write((char*) &peak_mv, sizeof(peak_mv));
 
@@ -344,10 +354,8 @@ void write_spike(std::shared_ptr<SpikePacket> packet,
   plx.write((char*) &(packet->unit), sizeof(std::uint16_t));
   plx.write((char*) &N_WAVEFORMS, sizeof(N_WAVEFORMS));
   plx.write((char*) &(N_WORDS), sizeof(N_WORDS));
-  plx.write((char*) packet->waveform, sizeof(char) * packet->len);
-  
+  plx.write((char*) packet->waveform, sizeof(char) * packet->len);  
 }  
-
 
 
   
