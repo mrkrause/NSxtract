@@ -3,6 +3,7 @@
 #define SYSTEMTIME_H_INCLUDED
 
 #include <sstream>
+#include <iomanip>
 
 // We're doing the lazy thing and reading a whole struct in at once.
 // This depends critically on having sizeof(SystemTime)==16, so use
@@ -27,8 +28,11 @@ struct SystemTime {
     }
   
     friend std::ostream& operator<<(std::ostream& out, const SystemTime& t) {
-      out << t.year << '-' << t.month << '-' << t.day << ' '
-	  << t.hour << ':' << t.minute << ':' << t.second << '.' << t.millisecond;
+      char old_fill =  out.fill('0');
+      out << std::setw(4) << t.year << '-' << std::setw(2) << t.month  << '-' << std::setw(2) << t.day << ' '
+	  << std::setw(2) << t.hour << ':' << std::setw(2) << t.minute << ':' << std::setw(2) << t.second << '.'
+	  << std::setw(3) << t.millisecond << 'Z';
+      out.fill(old_fill);
       return out;
     }
 };
