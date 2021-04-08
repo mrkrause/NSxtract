@@ -17,16 +17,17 @@ void write_file_header(NEVFile &src, std::fstream &dst);
 void write_spike_headers(NEVFile &src, std::fstream &dst);
 void write_event_headers(std::fstream &dst);
 
-void write_digital(std::shared_ptr<DigitalPacket> packet,
+std::int16_t write_digital(std::shared_ptr<DigitalPacket> packet,
 		   std::fstream &plx,
 		   std::uint16_t inital_value=0,
 		   bool ignore_zeros=true,
 		   bool ignore_negatives=true);
 
-void write_spike(std::shared_ptr<SpikePacket> packet,
+std::tuple<std::int16_t, std::int16_t> write_spike(std::shared_ptr<SpikePacket> packet,
 		 std::fstream &plx,
 		 IndexMap &channel_map);
-
+std::int16_t write_microstim(std::shared_ptr<StimPacket> packet,
+				      std::fstream &plx);
 
 std::map<std::uint16_t, int> channel_to_index(NEVFile &nev);
 
@@ -52,28 +53,25 @@ int main(int argc, char* argv[]) {
   write_event_headers(plx);
 
   auto  count = 0;
+  std::uint32_t last_timestamp = 0;
+  std::int16_t  chan = 0;
+  std::int16_t  unit = 0;
+  
+  int ev_counts[512] = {0};
+  int sp_counts[130][5] ={0};
+  
   while(!nev.eof()) {
     std::shared_ptr<Packet> packet = nev.readPacket(true, true, true);
-    
+    last_timestamp = packet->timestamp;
+
     if(auto p = std::dynamic_pointer_cast<DigitalPacket>(packet)) {
-      write_digital(p, plx, 3840, true, true);
+      chan = write_digital(p, plx, 3840, true, true);
+      ev_counts[chan]++;
     } else if (auto p = std::dynamic_pointer_cast<SpikePacket>(packet)) {
-      write_spike(p, plx, map);
+      std::tie(chan, unit) = write_spike(p, plx, map);
+      sp_counts[chan][unit]++;      
     } else if (auto p = std::dynamic_pointer_cast<StimPacket>(packet)) {
-      std::int16_t BLOCK_TYPE = 4; //Event, not segment!
-      std::uint16_t hi_time = 0;
-      std::int16_t stim_event_channel = 21;
-      std::int16_t unit = 0;
-      std::int16_t N_WAVEFORMS = 0;
-      std::int16_t N_WORDS = 0;
-      
-      plx.write((char*) &BLOCK_TYPE, sizeof(BLOCK_TYPE));
-      plx.write((char*) &hi_time, sizeof(hi_time));
-      plx.write((char*) &(p->timestamp), sizeof(std::uint32_t));
-      plx.write((char*) &stim_event_channel, sizeof(std::int16_t));
-      plx.write((char*) &unit, sizeof(unit));
-      plx.write((char*) &N_WAVEFORMS, sizeof(N_WAVEFORMS));
-      plx.write((char*) &N_WORDS, sizeof(N_WORDS));
+      chan = write_microstim(p, plx);
     }
   }
    
@@ -90,7 +88,7 @@ void write_file_header(NEVFile &src, std::fstream &dst) {
   const std::int32_t SNIP_LENGTH = 52;          // From Ripple docs
   const std::int32_t PRETHRESH_SNIP_LENGTH = 15;// From Ripple docs
   const std::int32_t FAST_READ = 0;             // No idea!
-  const std::uint16_t PREAMP_GAIN = 1;       // Not really relevant here...
+  const std::uint16_t PREAMP_GAIN = 1;          // Not really relevant here...
   const std::int8_t TRODALNESS = 1;             // No 255-trode for you....
   const char padding[46] = {'\0'};            
   const std::int32_t dummy_ts[130][5] = {0};    // Fill this in later
@@ -113,7 +111,7 @@ void write_file_header(NEVFile &src, std::fstream &dst) {
   dst.write((char*) &SLOW_CHANNELS, sizeof(SLOW_CHANNELS));
 
   dst.write((char*) &SNIP_LENGTH,   sizeof(SNIP_LENGTH));
-  dst.write((char*) &PRETHRESH_SNIP_LENGTH,   sizeof(PRETHRESH_SNIP_LENGTH));
+  dst.write((char*) &PRETHRESH_SNIP_LENGTH, sizeof(PRETHRESH_SNIP_LENGTH));
 
   auto t0 = src.get_start_sys();
   int year = int(t0.year); int month = int(t0.month); int day = int(t0.day);
@@ -224,7 +222,7 @@ void write_spike_headers(NEVFile &src, std::fstream &dst) {
   }    
 } 
     
-void write_event_headers(std::fstream &dst) {
+ write_event_headers(std::fstream &dst) {
   const int PADDING[33] = {0};
 
   // Create one event channel for the parallel port
@@ -281,11 +279,21 @@ void write_event_headers(std::fstream &dst) {
   }
 }
 
- void write_digital(std::shared_ptr<DigitalPacket> packet,
+std::int16_t write_digital(std::shared_ptr<DigitalPacket> packet,
 		    std::fstream &plx,
-		    std::uint16_t inital_value,
+		    std::uint16_t inital_value=0,
 		    bool ignore_zeros,
 		    bool ignore_negatives) {
+
+  /* This function assumes that the parallel port is in bit-capture mode,
+      not strobe mode. Ideally, you'd zero out the port before starting
+      but, if not, set inital_value to whatever should be diffed off.
+
+      The present version of this function doesn't consider edges,
+      just transitions. This works well when a pulse (low -> high ->
+      low) indicates something useful, but isn't great if the edge (or
+      "highness") is meaningful. In the former case, ignore_negatives
+      will remove some spam. */
 
    static bool initalized = false;
    static std::uint16_t last_value;
@@ -334,12 +342,13 @@ void write_event_headers(std::fstream &dst) {
    plx.write((char*) &UNIT_ID, sizeof(UNIT_ID));
    plx.write((char*) &N_WAVEFORMS, sizeof(N_WAVEFORMS));
    plx.write((char*) &N_WORDS, sizeof(N_WORDS));
-   return;
+   return channel;
  }
 
 
-void write_spike(std::shared_ptr<SpikePacket> packet,
-		 std::fstream &plx, IndexMap &channel_map){
+auto write_spike(std::shared_ptr<SpikePacket> packet,
+			  std::fstream &plx, const IndexMap &channel_map,
+			  std::uint32_t &timestamp){
   
   static std::int16_t BLOCK_TYPE = 1;
   static std::uint16_t hi_time = 0;
@@ -354,8 +363,29 @@ void write_spike(std::shared_ptr<SpikePacket> packet,
   plx.write((char*) &(packet->unit), sizeof(std::uint16_t));
   plx.write((char*) &N_WAVEFORMS, sizeof(N_WAVEFORMS));
   plx.write((char*) &(N_WORDS), sizeof(N_WORDS));
-  plx.write((char*) packet->waveform, sizeof(char) * packet->len);  
+  plx.write((char*) packet->waveform, sizeof(char) * packet->len);
+
+  return std::make_tuple(channel, packet->unit);
 }  
 
 
+ std::int16_t write_microstim(std::shared_ptr<StimPacket> packet,
+			      std::fstream &plx) {
+   
+   std::int16_t BLOCK_TYPE = 4; //Event, not segment!
+   std::uint16_t hi_time = 0;
+   std::int16_t stim_event_channel = 21;
+   std::int16_t unit = 0;
+   std::int16_t N_WAVEFORMS = 0;
+   std::int16_t N_WORDS = 0;
   
+   plx.write((char*) &BLOCK_TYPE, sizeof(BLOCK_TYPE));
+   plx.write((char*) &hi_time, sizeof(hi_time));
+   plx.write((char*) &(packet->timestamp), sizeof(std::uint32_t));
+   plx.write((char*) &stim_event_channel, sizeof(std::int16_t));
+   plx.write((char*) &unit, sizeof(unit));
+   plx.write((char*) &N_WAVEFORMS, sizeof(N_WAVEFORMS));
+   plx.write((char*) &N_WORDS, sizeof(N_WORDS));
+   
+   return stim_event_channel;
+ }
