@@ -188,7 +188,7 @@ std::string toString(std::shared_ptr<WavePacket> wp, const NEVFile &file,
 
 void saveStimText(const NEVConfig &config, const NEVFile &file, const std::vector<std::shared_ptr<StimPacket>> &sp) {
 
-  const double stampToSec =  1.0 / static_cast<double>(file.timestampFS());
+  const double stampToSec =  1.0 / static_cast<double>(file.get_timestampFS());
   
   std::string filename = config.stimFilename(OutputFormat::TEXT);
   std::ofstream out(filename);
@@ -216,7 +216,7 @@ void saveStimText(const NEVConfig &config, const NEVFile &file, const std::vecto
 
 void saveStimCSV(const NEVConfig &config, const NEVFile &file, const std::vector<std::shared_ptr<StimPacket>> &sp) {
   
-  const double stampToSec =  1.0 / static_cast<double>(file.timestampFS());
+  const double stampToSec =  1.0 / static_cast<double>(file.get_timestampFS());
    
   std::string filename = config.stimFilename(OutputFormat::CSV);
   std::ofstream out(filename);
@@ -269,7 +269,7 @@ void saveStimMatlab(const NEVConfig &config, const NEVFile &f, const std::vector
   MW::mxArray* eventdata = MW::mxCreateStructArray(2, event_dims, 
 						n_event_fields, event_fieldnames);
 
-  const double stampToSec =  1.0 / static_cast<double>(f.timestampFS());
+  const double stampToSec =  1.0 / static_cast<double>(f.get_timestampFS());
 
   
   /* We're going to cache the amp digitization factor and the bytes per sample so we don't

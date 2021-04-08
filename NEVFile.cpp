@@ -162,7 +162,7 @@ std::shared_ptr<Packet> NEVFile::readPacket(bool digital, bool stim, bool spike)
 }
 
 
-std::shared_ptr<Packet> NEVFile::readPacketOrNull(bool digital, bool stim, bool spike) {
+std::shared_ptr<Packet> NEVFile::readPacketOrNull(bool keep_digital, bool keep_stim, bool keep_spike) {
   /* Read the next packet.  If the corresponding type (digital, stim,
      or spike) is true, parse it and return a shared_ptr.  Otherwise,
      return nullptr.
@@ -187,11 +187,11 @@ std::shared_ptr<Packet> NEVFile::readPacketOrNull(bool digital, bool stim, bool 
 
   std::shared_ptr<Packet> p = nullptr;
 
-  if(packetID == 0 && digital) {
+  if(packetID == 0 && keep_digital) {
       p = parseCurrentAsDigital();
-  } else if(packetID <= 512 && spike) {    
+  } else if(packetID <= 512 && keep_spike) {    
       p = parseCurrentAsSpike();
-  } else if (packetID > 512 && stim) {
+  } else if (packetID > 512 && keep_stim) {
       p = parseCurrentAsStim();
   }
 
@@ -205,6 +205,7 @@ std::shared_ptr<Packet> NEVFile::readPacketOrNull(bool digital, bool stim, bool 
       else
 	refillBuffer();
     }
+
     start = buffer + buffer_pos;
     std::copy(start, start+sizeof(timestamp),
 	      reinterpret_cast<char*>(&timestamp));    

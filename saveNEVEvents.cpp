@@ -15,7 +15,7 @@ void saveEventsCSV(const NEVConfig &config, const NEVFile &file, const EventSOA 
     throw(std::runtime_error("Unable to open " + filename + " for writing"));
   }
 
-  double stampToSec =  1.0 / static_cast<double>(file.timestampFS());
+  double stampToSec =  1.0 / static_cast<double>(file.get_timestampFS());
   
   out << "timestamp,tic,reason,parallel,sma1,sma2,sma3,sma4\n";
   
@@ -43,7 +43,7 @@ void saveEventsMatlab(const NEVConfig &config, const NEVFile &f, const EventSOA 
   MW::mwSize dim[2] = { static_cast<MW::mwSize>(ev.ts.size()), 1};
 
   std::vector<double> time(ev.ts.size());
-  const double ticToSec = 1.0 / static_cast<double>(f.timestampFS());
+  const double ticToSec = 1.0 / static_cast<double>(f.get_timestampFS());
   for(size_t i=0; i<ev.ts.size(); i++) {
     time[i] = double(ev.ts[i]) * ticToSec;
   }
@@ -66,7 +66,7 @@ void saveEventsMatlab(const NEVConfig &config, const NEVFile &f, const EventSOA 
 
 void saveEventsText(const NEVConfig &config, const NEVFile &file, const EventSOA &ev) {
 
-  const double stampToSec =  1.0 / static_cast<double>(file.timestampFS());
+  const double stampToSec =  1.0 / static_cast<double>(file.get_timestampFS());
   
   std::string filename = config.eventFilename(OutputFormat::TEXT);
   std::ofstream out(filename);
