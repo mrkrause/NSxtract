@@ -22,14 +22,8 @@ enum DigitalMode: std::uint8_t {
   SERIAL_MODE = 0,
   PARALLEL_MODE = 1
  };
+std::ostream& operator<<(std::ostream& out, const DigitalMode& m);
 
-std::ostream& operator<<(std::ostream& out, const DigitalMode& m) {
-  switch(m) {
-    case SERIAL_MODE: out << "Serial";   break;	
-    case PARALLEL:    out << "Parallel"; break;
-    }
-  return out;
-}
 
 class NEVFile {
 public:

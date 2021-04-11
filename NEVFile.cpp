@@ -310,9 +310,14 @@ std::shared_ptr<StimPacket> NEVFile::parseCurrentAsStim() {
   
 }
 
-   
+std::ostream& operator<<(std::ostream& out, const DigitalMode& m) {
+  switch(m) {
+    case SERIAL_MODE: out << "Serial";   break;	
+    case PARALLEL:    out << "Parallel"; break;
+    }
+  return out;
+}
 
-  
 	    
   
   
