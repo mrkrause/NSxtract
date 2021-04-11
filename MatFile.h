@@ -49,7 +49,11 @@ public:
     template <typename Scalar>
     void putScalar(const std::string& varname, const Scalar value, bool asGlobal = false) {
         
-        const MW::mwSize scalar[2] = {static_cast<MW::mwSize>(1), static_cast<MW::mwSize>(1)};
+        const MW::mwSize scalar[2] = {
+	  static_cast<MW::mwSize>(1),
+	  static_cast<MW::mwSize>(1)
+	};
+	
         MW::mxArray* newval = MW::mxCreateNumericArray(static_cast<MW::mwSize>(2),
                                                        scalar,
                                                        typeHelper<Scalar>(),
@@ -59,29 +63,33 @@ public:
             data[0] = value;
         }
         check_put_and_dealloc(varname, newval, asGlobal);
+	return;
     }
     
     template <typename Scalar>
-    void putArray(const std::string& varname, const Scalar* values, MW::mwSize ndims, const MW::mwSize* dims, bool asGlobal = false) {
-        MW::mxArray* newval = MW::mxCreateNumericArray(ndims,
+    void putArray(const std::string& varname, const Scalar* values,
+		  MW::mwSize ndims, const MW::mwSize* dims, bool asGlobal = false) {
+
+      MW::mxArray* newval = MW::mxCreateNumericArray(ndims,
                                                        dims,
                                                        typeHelper<Scalar>(),
                                                        static_cast<MW::mxComplexity>(false));
-        MW::mwSize n =1;
-        for(MW::mwSize i=0; i < ndims; i++) {
+      MW::mwSize n =1;
+      for(MW::mwSize i=0; i < ndims; i++) {
             n*= dims[i];
-        }
+      }
         
-        if(newval) {
+      if(newval) {
             Scalar* data = static_cast<Scalar*>(MW::mxGetData(newval));
             for(MW::mwSize i=0; i < n; i++) {
                 data[i] = values[i];
             }
-        }
+      }
         
-        check_put_and_dealloc(varname, newval, asGlobal);
+      check_put_and_dealloc(varname, newval, asGlobal);
+      return;
     }
-   
+
     void rmVar(const std::string& varname);
     
     std::vector<std::string> getDir();
@@ -98,23 +106,29 @@ protected:
 
 /* Specializations for MATFile::putScalar() */
 template <>
-void MATFile::putScalar<bool>(const std::string& varname, const bool value, bool asGlobal);
+void MATFile::putScalar<bool>(const std::string& varname,
+			      const bool value, bool
+			      asGlobal);
 
 template <>
-void MATFile::putScalar<const char*>(const std::string& varname, const char* value, bool asGlobal);
+void MATFile::putScalar<const char*>(const std::string& varname,
+				     const char* value,
+				     bool asGlobal);
 
 template <>
-void MATFile::putScalar<double>(const std::string& varname, const double value, bool asGlobal);
+void MATFile::putScalar<double>(const std::string& varname,
+				const double value,
+				bool asGlobal);
 
 template <>
-void MATFile::putScalar<std::string>(const std::string& varname, const std::string value, bool asGlobal);
+void MATFile::putScalar<std::string>(const std::string& varname,
+				     const std::string value,
+				     bool asGlobal);
 
-
-template <>
-void MATFile::putScalar<>(const std::string& varname, MW::mxArray* value, bool asGlobal);
-
-template <>
-void MATFile::putScalar<const std::string&>(const std::string& varname, const std::string& value, bool asGlobal);
+template<>
+void MATFile::putArray<bool>(const std::string& varname, const bool* values,
+			     MW::mwSize ndims, const MW::mwSize* dims,
+			     bool asGlobal);
 
 
 

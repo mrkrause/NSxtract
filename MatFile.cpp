@@ -1,10 +1,3 @@
-//
-//  MatFile.cpp
-//  
-//
-//  Created by Matthew Krause on 6/16/15.
-//
-//
 #include "MatFile.h"
 
 MATFile::MATFile(const std::string& _filename, const std::string& _mode) {
@@ -152,6 +145,29 @@ void MATFile::putScalar<double>(const std::string& varname, const double value, 
     check_put_and_dealloc(varname, newval, asGlobal);
 }
 
+template <>
+void MATFile::putArray<bool>(const std::string& varname, const bool* values,
+			     MW::mwSize ndims, const MW::mwSize* dims,
+			     bool asGlobal) {
+  MW::mwSize n = 1;
+  for(MW::mwSize i=0; i < ndims; i++) {
+    n*= dims[i];
+  }
+
+  MW::mxArray* newval = MW::mxCreateLogicalArray(ndims, dims);
+
+  if(newval) {
+    bool* dst = static_cast<bool*>(MW::mxGetData(newval));
+    for(MW::mwSize i=0; i < n; i++)
+      dst[i] = values[i];
+  }
+
+  check_put_and_dealloc(varname, newval, asGlobal);
+
+  return;
+}
+    
+
 
 void MATFile::check_put_and_dealloc(const std::string& varname, MW::mxArray* newval, bool asGlobal) {
     /* This is a silly little wrapper around putScalar<MW::mxArray*> that
@@ -179,5 +195,7 @@ void MATFile::check_put_and_dealloc(const std::string& varname, MW::mxArray* new
     MW::mxDestroyArray(newval);
     newval = 0;
 }
+
+
 
 

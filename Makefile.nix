@@ -16,7 +16,12 @@ rippleToFlac: $(COMMON_OBJ) NSxConfig.o NSxFile.o NSxChannel.o NSxHeader.o nsx2m
 
 NEVExtract: $(COMMON_OBJ) datapacket.o NEVConfig.o NEVFile.o extheader.o NEVExtract.o saveNEVEvents.o
 	$(CC) -output $@ $^ $(CFLAGS) $(LIBS)
-	
+	patchelf --set-rpath $(MATLAB_ROOT)/bin/glnxa64/ $@ 
+
+
+nev2plx: NEVFile.o extheader.o datapacket.o nev2plx_config.o nev2plx.o
+	$(CC) -output $@ $^ $(CFLAGS) $(LIBS)
+
 .PHONY: clean
 clean:
 	rm -f *.o *~ core

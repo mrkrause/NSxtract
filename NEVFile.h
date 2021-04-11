@@ -22,6 +22,7 @@ enum DigitalMode: std::uint8_t {
   SERIAL_MODE = 0,
   PARALLEL_MODE = 1
  };
+std::ostream& operator<<(std::ostream& out, const DigitalMode& m);
 
 
 class NEVFile {
@@ -54,10 +55,12 @@ public:
   auto get_timestampFS()   const {return fsTimestamp; }
   auto get_waveformFS()    const {return fsWaveforms; }
   auto get_start_sys()     const {return origin;}
+  auto get_start_proc()    const {return processorTime;}
   auto get_comment()       const {return comment;}
   auto get_creator()       const {return creator;}
   auto get_spike_label(std::uint16_t id) {return labels[id];}
-  auto allWaves16Bit() const {return flags&1; }
+  auto allWaves16Bit()         const {return flags&1; }
+  auto get_digital_mode()      const {return digitalMode;}
  protected:
   std::ifstream file;
 
