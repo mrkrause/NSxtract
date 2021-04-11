@@ -9,7 +9,9 @@ NEVFile::NEVFile(std::string filename, size_t buffersize) :
 {
 
   this->file.open(filename, std::ios_base::binary);
+
   //  this->file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
   if(!this->file) {
     std::cerr << "Failed to open file " << filename << "|\n" << std::endl;
     throw(std::runtime_error("Cannot open file for reading"));
