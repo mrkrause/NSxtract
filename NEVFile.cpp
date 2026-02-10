@@ -144,9 +144,9 @@ void NEVFile::refillBuffer() {
   if(!file.eof()) {    
     try {
       file.read(reinterpret_cast<char*>(buffer), BUFFERSIZE*packetSize);
-    } catch (std::ifstream::failure &e) {
+    } catch (const std::ifstream::failure &e) {
       if(!file.eof())
-	throw(e);
+	throw;
     }
     buffer_capacity = file.gcount(); 
     buffer_pos = 0;    

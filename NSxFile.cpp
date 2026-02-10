@@ -27,7 +27,7 @@ void NSxFile::prepareNextPacket() {
     std::uint8_t checkval;
     try {
         file.read(reinterpret_cast<char *>(&checkval), sizeof(checkval));
-    } catch(std::ios_base::failure &e) {
+    } catch(const std::ios_base::failure &e) {
         if(file.eof()) {
             dataAvailable = false;
             samplesRemainingInPacket = 0;
@@ -67,7 +67,7 @@ size_t NSxFile::readData(std::uint32_t samplesRequested, std::int16_t *&buffer) 
       file.read(reinterpret_cast<char *>(buffer), totalSize);
       samplesRemainingInPacket-=fetchSize;
     }
-    catch(std::ios_base::failure &e) {
+    catch(const std::ios_base::failure &e) {
       fetchSize = (file.gcount()/sizeof(std::int16_t)) / header.getChannelCount();
       samplesRemainingInPacket = 0;
     }

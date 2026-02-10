@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
     NSxConfig config;
     try {
         config.parse(argc, argv);
-    } catch (std::exception e) {
+    } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
         return -1;
     }
@@ -62,9 +62,9 @@ int main(int argc, char *argv[]) {
       try {
 	std::cout << c;
 	runConfiguration(c);
-      } catch (std::runtime_error e) {
+      } catch (const std::runtime_error &e) {
 	std::cerr << "Error processing configuration: " << e.what() << std::endl;
-	throw(e);
+	throw;
 	  
       }
     }
