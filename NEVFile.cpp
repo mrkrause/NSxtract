@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <cstring>
+#include <array>
 NEVFile::NEVFile(std::string filename, size_t buffersize) :
   BUFFERSIZE(buffersize)
 {
@@ -34,12 +35,13 @@ NEVFile::~NEVFile() {
 }
 
 std::uint32_t NEVFile::readBasicHeader() {
-  char* buffer = new char[200]; //largest field is 200 bytes (we'll reuse this)
+  // Largest field is 200 bytes (we'll reuse this throughout the function)
+  std::array<char, 200> buffer;
 
   /* Read the magic word to ensure this is the right kind of file*/      
-  file.read(buffer, sizeof(char)*8);
-  if(!std::equal(buffer, buffer+8, "NEURALEV")) {
-    std::cerr << buffer << std::endl << "vs" << std::endl << "NEURALEV" << std::endl;
+  file.read(buffer.data(), sizeof(char)*8);
+  if(!std::equal(buffer.data(), buffer.data()+8, "NEURALEV")) {
+    std::cerr << buffer.data() << std::endl << "vs" << std::endl << "NEURALEV" << std::endl;
     throw(std::runtime_error("Not a Ripple NEV (neural event) file"));
   }
   
@@ -56,11 +58,11 @@ std::uint32_t NEVFile::readBasicHeader() {
   file.read(reinterpret_cast<char*>(&origin), sizeof(origin));
     
   // The next two reads only work because each is bigger than the last (so no need to clear the buffer)
-  file.read(buffer, sizeof(char)*32);
-  creator = std::string(buffer);
+  file.read(buffer.data(), sizeof(char)*32);
+  creator = std::string(buffer.data());
   
-  file.read(buffer, sizeof(char)*200);
-  comment = std::string(buffer);
+  file.read(buffer.data(), sizeof(char)*200);
+  comment = std::string(buffer.data());
 
   file.ignore(52); // Per spec, reserved for future use
 
@@ -69,7 +71,6 @@ std::uint32_t NEVFile::readBasicHeader() {
   std::uint32_t nHeaders;
   file.read(reinterpret_cast<char*>(&nHeaders), sizeof(nHeaders));
 
-  delete [] buffer;
   return nHeaders;
 }
 
